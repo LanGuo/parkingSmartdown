@@ -7,8 +7,12 @@ import pdb
 import numpy as np
 import time
 
-ticketAmountByLocation = pd.read_csv('./parking_aggregate_2007_2008.csv')
+addressByTicketCounts = pd.read_csv('./address_by_ticket_counts_2007_2008.csv')
+
 geolocator = GoogleV3(api_key='AIzaSyDImvv3i9XUZLf8oDd6Of51_plddaJ9iC4', timeout=60)
+
+# Get geolocation for the highest ranked 100 addresses by ticket number
+'''
 batchSize = 200
 numBatch = int(np.ceil(len(ticketAmountByLocation)/float(batchSize)))
 outFile = './parking_aggregate_2007_2008_geocoded.csv'
@@ -24,7 +28,7 @@ for batch in range(numBatch):
 		streetPattern = re.compile('[A-Z0-9]+(?=\sAVE|\sST)')
 		streetNames = re.findall(streetPattern, location)
 		if len(streetNames) >= 2:
-			address = ' & '.join(streetNames)
+			address = ' & '.join(sorted(streetNames[:2]))
 		else:
 			address = location
 
@@ -41,9 +45,9 @@ for batch in range(numBatch):
 			longitudeCol[ind] = np.NaN
 		#pdb.set_trace()
 
-	thisBatch.address = addressCol
-	thisBatch.latitude = latitudeCol
-	thisBatch.longitude = longitudeCol
+	thisBatch['address'] = addressCol.values
+	thisBatch['latitude'] = latitudeCol.values
+	thisBatch['longitude'] = longitudeCol.values
 
 	if batch == 0:
 		with open(outFile,'w') as f:
@@ -53,3 +57,5 @@ for batch in range(numBatch):
 			thisBatch.to_csv(f, header=False)
 
 	time.sleep(60)
+
+'''
