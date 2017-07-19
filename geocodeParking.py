@@ -25,7 +25,7 @@ for ind,address in top100Addresses.iteritems():
     print 'Geocoding {}'.format(fullAddress)
     results = geolocator.geocode(fullAddress, exactly_one=True)
     if (results != None):
-        address, (latitude, longitude) = results
+        fullAddress, (latitude, longitude) = results
         latitudeCol[ind] = latitude
         longitudeCol[ind] = longitude
     else:
