@@ -36,7 +36,7 @@ for ind,address in top100Addresses.iteritems():
     
 outputDf = pd.DataFrame({'address':topAddresses, 'count':topAddressCounts, 'max':topAddressMax, 'latitude':latitudeCol, 'longitude':longitudeCol})
 
-outputDf.to_csv('./top_100_address_geocoded_2007_2008.csv')
+outputDf.to_csv('./top_address_geocoded_2007_2008.csv')
 
 
 '''
