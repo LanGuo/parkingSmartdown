@@ -26,10 +26,11 @@ for ind,address in topAddresses.iteritems():
     # Convert each address's stats into columns
     statsThisAddress = amountDueEachMonth.T.unstack(level=-1).rename(index={'Amount Due': address}) #The resulting dataframe has this address as index and multi-level column first level being date (by month), second level being 'sum' and 'count'
     statsThisAddress.columns = ['_'.join([col[0].strftime('%b'),col[1]]) for col in statsThisAddress.columns] #convert multi-level columns into single level
+    statsThisAddress = statsThisAddress.reset_index().rename(columns={'index': 'address'}) #put the address in index into a column called 'address'
     if ind == 0:
         outputDf = statsThisAddress
     else:
-        outputDf = pd.concat([outputDf, statsThisAddress])
+        outputDf = pd.concat([outputDf, statsThisAddress], ignore_index=True)
     #pdb.set_trace()
     #countByDate = datesThisAddress.value_counts().sort_index(ascending=True)
     #datesToPlot = countByDate.index
