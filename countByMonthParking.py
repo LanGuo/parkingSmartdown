@@ -25,6 +25,7 @@ for ind,address in topAddresses.iteritems():
     #pdb.set_trace()
     # Convert each address's stats into columns
     statsThisAddress = amountDueEachMonth.T.unstack(level=-1).rename(index={'Amount Due': address}) #The resulting dataframe has this address as index and multi-level column first level being date (by month), second level being 'sum' and 'count'
+    statsThisAddress.columns = ['_'.join([col[0].strftime('%b'),col[1]]) for col in statsThisAddress.columns] #convert multi-level columns into single level
     if ind == 0:
         outputDf = statsThisAddress
     else:
