@@ -9,16 +9,18 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 
 addressByTicketCounts = pd.read_csv('./address_by_ticket_counts_2007_2008.csv')
-parkingData = pd.read_csv('./parking2007_2008.csv')
+#parkingData = pd.read_csv('./parking2007_2008.csv')
 
 geolocator = GoogleV3(api_key='AIzaSyDImvv3i9XUZLf8oDd6Of51_plddaJ9iC4', timeout=60)
 
 # Get geolocation for the highest ranked 100 addresses by ticket number
-top100Addresses =  addressByTicketCounts.address[:100]
-top100Counts = addressByTicketCounts['count'][:100]
-top100Max = addressByTicketCounts['max'][:100]
-latitudeCol = np.empty(100, dtype=float)
-longitudeCol = np.empty(100, dtype=float)
+numOfTopAddress = 100
+topAddresses =  addressByTicketCounts.address[:numOfTopAddress]
+topAddressCounts = addressByTicketCounts['count'][:numOfTopAddress]
+topAddressMax = addressByTicketCounts['max'][:numOfTopAddress]
+
+latitudeCol = np.empty(numOfTopAddress, dtype=float)
+longitudeCol = np.empty(numOfTopAddress, dtype=float)
 
 for ind,address in top100Addresses.iteritems():
     fullAddress = address + ', Eugene, OR'
@@ -32,19 +34,7 @@ for ind,address in top100Addresses.iteritems():
         latitudeCol[ind] = np.NaN
         longitudeCol[ind] = np.NaN
     
-    datesThisAddress = parkingData.loc[parkingData.address==address]['Date']
-    datesThisAddress = datesThisAddress.apply(lambda x: datetime.strptime(x.split(' ')[0], '%m/%d/%y')) #convert date strings to datetime objects
-    countByDate = datesThisAddress.value_counts().sort_index(ascending=True)
-    datesToPlot = countByDate.index
-    countsToPlot = countByDate.values
-    #datesToPlot = matplotlib.dates.date2num(datetimes)
-    plt.clf()
-    print 'plotting figure for {}'.format(address)
-    trendLinePlot = plt.plot(datesToPlot, countsToPlot, 'k.-')
-    plt.ylabel('Tickets per day')
-    plt.savefig('./figures/{}.png'.format(address))
-
-outputDf = pd.DataFrame({'address':top100Addresses, 'count':top100Counts, 'max':top100Max, 'latitude':latitudeCol, 'longitude':longitudeCol})
+outputDf = pd.DataFrame({'address':topAddresses, 'count':topAddressCounts, 'max':topAddressMax, 'latitude':latitudeCol, 'longitude':longitudeCol})
 
 outputDf.to_csv('./top_100_address_geocoded_2007_2008.csv')
 
