@@ -17,9 +17,9 @@ const parkingCSV = 'https://raw.githubusercontent.com/LanGuo/parkingSmartdown/ma
 
 d3.csv(parkingCSV, function(d) {
   const countsByMonthColNames = d3.keys(d).filter(function(key) { 
-  		     	     return (key.indexOf("count") != -1) && (key.indexOf("count") != 0); 
+  		     	     return ((key.indexOf("count") != -1) && (key.indexOf("count") != 0)); 
 			   });
-  console.log(countsColNames);
+  // console.log(countsByMonthColNames);
   const countsByMonth = countsByMonthColNames.map(function(name) { 
       return +d[name];
     });
@@ -33,32 +33,22 @@ d3.csv(parkingCSV, function(d) {
     countsByMonth: countsByMonth
   };
 }, function(data) {
-  console.log(data[0]);
-});
-
-
- 
-return mymap;
-
-```
-
-
-/*
-  data.map(function(d,i) {
+  // console.log(data[0]);
+   data.map(function(d,i) {
     // somehow d3.csv is treating missing cells as value 0?
     if (d.latitude != 0 && d.longitude != 0) {
       const marker = L.marker([d.latitude, d.longitude]).addTo(mymap);
       // const imgName = encodeURI(d.address);
       // const imgUrl = `https://raw.githubusercontent.com/LanGuo/parkingSmartdown/master/figures/${imgName}.png`;
       // console.log(imgUrl);
-      marker.bindPopup(`<div id="graph"></div><b>${d.address}</b><br>Number of tickets in 2007-2008: ${d.totalCount}.<br>Maximum fine: ${d.maxTicket}`);
+      marker.bindPopup(`<div id="graph"></div><br><b>${d.address}</b><br>Number of tickets in 2007-2008: ${d.totalCount}.<br>Maximum fine: ${d.maxTicket}`);
       const graph = d3.select("#graph").append("svg:svg").attr("width", "100%").attr("height", "100%");
 
       // create a simple data array that we'll plot with a line (this array represents only the Y values, X will just be the index location)
       const data = d.countsByMonth;
 
       // X scale will fit values from 0-10 within pixels 0-100
-      const x = d3.scale.linear().domain([0, 10]).range([0, 50]);
+      const x = d3.scale.linear().domain().range();
       // Y scale will fit values from 0-10 within pixels 0-100
       const y = d3.scale.linear().domain([0, 10]).range([0, 30]);
 
@@ -82,4 +72,12 @@ return mymap;
 	 graph.append("svg:path").attr("d", line(data));
     }
   })
-*/
+});
+
+
+ 
+return mymap;
+
+```
+
+
