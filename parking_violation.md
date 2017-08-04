@@ -1,8 +1,14 @@
 
-# This is a map of parking tickets issued in the city of Eugene in 2007-2008, based on data released by the city to the [2017 Hack For A Cause event]()
+## This is a map of parking tickets issued in the city of Eugene in 2007-2008, based on data released by the city to the [2017 Hack For A Cause event]()
 ---
+### What's the raw data like?
 
-## Click on an icon on the map to see ticket number over time:
+### Data cleaning and getting locations geocoded 
+
+### Let's make a map
+
+### The finished prodcut!
+#### Click on an icon on the map to see ticket number over time:
 ```leaflet/playable/autoplay
 const mymap = L.map(this.div.id).setView([44.0489713,-123.0944854], 12);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
