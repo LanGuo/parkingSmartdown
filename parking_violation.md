@@ -2,11 +2,60 @@
 ## This is a map of parking tickets issued in the city of Eugene in 2007-2008, based on data released by the city to the [2017 Hack For A Cause event]()
 ---
 ### What's the raw data like?
+The original data was given to us as an Excel file made up of 3 separate sheets each containing data from different time periods. Putting them together, we get parking violation data from July of 2007 to June of 2008 in csv format: [csv data](https://raw.githubusercontent.com/LanGuo/parkingSmartdown/master/parking2007_2008.csv). Each record is stored in a row of this csv table, the first few lines of this table looked like this:
 
-### Data cleaning and getting locations geocoded 
 
-### Let's make a map
+```javascript/playable
+// generate Markdown table using js
+const originalParkingCSV = 'https://raw.githubusercontent.com/LanGuo/parkingSmartdown/master/parking2007_2008.csv';
+const myDiv = this.div;
+let headerRow = '|';
+let extraLine = '\n|';
+let numRowsToShow = 10;
 
+d3.csv(originalParkingCSV, function(data) {
+  for (const key of d3.keys(data[0])) {
+    headerRow += key+'|';
+    extraLine += ':---|';
+  }
+  // console.log(headerRow, extraLine);
+
+  const dataToShow = data.slice(1,numRowsToShow+1);
+
+  let tableRows = dataToShow.map(function(row) {
+    let oneRow = '\n|'
+    for (const value of d3.values(row)) {
+      oneRow += value+'|';
+    }
+    return oneRow;
+  });
+
+  let mdTable =
+  `
+  ${headerRow}${extraLine}${tableRows.join()}
+  `;
+  // console.log(mdTbTemplate);
+  let sdContent =
+  `
+  #### Raw data in csv format:
+  ${mdTable}
+  `;
+  smartdown.setSmartdown(sdContent, myDiv);
+  //smartdown.cellChanged('mdParkingDataTable', mdTbTemplate);
+  //console.log(env.mdParkingDataTable);
+});
+
+
+```
+
+To visualize this data, we will display on a map the *Location* of parking tickets, and ideally provide some statistics associated with places where parking tickets were often issued.
+
+---
+### Data cleaning and getting locations geocoded (python, pandas)
+
+---
+### Let's make a map (leaflet.js)
+---
 ### The finished prodcut!
 #### Click on an icon on the map to see ticket number over time:
 ```leaflet/playable/autoplay
