@@ -1,8 +1,9 @@
 
-## This is a map of parking tickets issued in the city of Eugene in 2007-2008, based on data released by the city to the [2017 Hack For A Cause event]()
----
+## Generating a map of parking violations in the city of Eugene from 2007 to 2008, based on data released by the city to the [2017 Hack For A Cause event](http://www.techoregon.org/events/2017-hack-cause)
+-----------------------
+
 ### What's the raw data like?
-The original data was given to us as an Excel file made up of 3 separate sheets each containing data from different time periods. Putting them together, we get parking violation data from July of 2007 to June of 2008 in csv format: [csv data](https://raw.githubusercontent.com/LanGuo/parkingSmartdown/master/parking2007_2008.csv). Each record is stored in a row of this csv table. Let's write some code to load this csv file and look at the first few lines of this table:
+The original data was given to us as an Excel file made up of 3 separate sheets, each containing data from a different time period. Putting them together, we get the parking violation data from July of 2007 to June of 2008 in csv format: [csv data](https://raw.githubusercontent.com/LanGuo/parkingSmartdown/master/parking2007_2008.csv). Each record is stored in a row of this csv table. Let's load up this csv file and look at the first few lines of this table:
 
 
 ```javascript/playable
@@ -170,16 +171,42 @@ outputDf = pd.DataFrame({'address':topAddresses, 'count':topAddressCounts, 'max'
 outputDf.to_csv('./top_address_geocoded_2007_2008.csv')
 
 ```
+For each unique address, we now have the 'latitude' and 'longitude' information we can use to locate it on a map!
 
 ---
 
 ### Let's make a map and put some markers on it (leaflet.js)
-#### Here is a simple leaflet map centered on Eugene, OR.
+#### Here is a simple leaflet map centered on Eugene, OR. Markers indicate the top 100 most-ticketed locations. Each location marker has a pop-up when clicked on it, showing the address, total number of tickets over this period, and the maximal fined amount.
+
 ```leaflet/playable
 const mymap = L.map(this.div.id).setView([44.0489713,-123.0944854], 12);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
 }).addTo(mymap);
+
+// Preprocessing with Python to do geocoding, use the resulting latitude, longitude data for leaflet map.
+const parkingCSV = 'https://raw.githubusercontent.com/LanGuo/parkingSmartdown/master/parking_aggregate_2007_2008_geocoded.csv';
+
+d3.csv(parkingCSV, function(d) {
+  return {
+    address: d.address,
+    latitude: +d.latitude,
+    longitude: +d.longitude,
+    count: +d.count,
+    min_ticket: +d.min,
+    max_ticket: +d.max
+  };
+}, function(data) {
+  console.log(data[0]);
+  data.map(function(d,i) {
+    // somehow d3.csv is treating missing cells as value 0?
+    if (d.latitude != 0 && d.longitude != 0) {
+      const marker = L.marker([d.latitude, d.longitude]).addTo(mymap);
+      marker.bindPopup(`<b>${d.address}</b><br>Number of tickets in 2007-2008: ${d.count}.<br>Maximum fine: ${d.max_ticket}`);
+    }
+  })
+});
+
 
 return mymap;
 ```
@@ -187,8 +214,49 @@ return mymap;
 
 ### What about adding some trend lines to show the number of tickets issued in each month?
 #### Approach 1: Loading premade figures (Python matplotlib)
-#### Approach 2: Dynamic loading of data and creating the figure when user clicks on icon (d3.js)
+
+
+```leaflet/playable
+
+const mymap = L.map(this.div.id).setView([44.0489713,-123.0944854], 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+}).addTo(mymap);
+
+// Preprocessing with Python to do geocoding, use the resulting latitude, longitude data for leaflet map.
+// const parkingCSV = 'https://raw.githubusercontent.com/LanGuo/parkingSmartdown/master/parking_aggregate_2007_2008_geocoded.csv';
+
+const parkingCSV = 'https://raw.githubusercontent.com/LanGuo/parkingSmartdown/master/top_address_geocoded_2007_2008.csv';
+
+d3.csv(parkingCSV, function(d) {
+  return {
+    address: d.address,
+    latitude: +d.latitude,
+    longitude: +d.longitude,
+    count: +d.count,
+    max_ticket: +d.max
+  };
+}, function(data) {
+  console.log(data[0]);
+  data.map(function(d,i) {
+    // somehow d3.csv is treating missing cells as value 0?
+    if (d.latitude != 0 && d.longitude != 0) {
+      const marker = L.marker([d.latitude, d.longitude]).addTo(mymap);
+      const imgName = encodeURI(d.address);
+      const imgUrl = `https://raw.githubusercontent.com/LanGuo/parkingSmartdown/master/figures/${imgName}.png`;
+      console.log(imgUrl);
+      marker.bindPopup(`<img src=${imgUrl}></img><b>${d.address}</b><br>Number of tickets in 2007-2008: ${d.count}.<br>Maximum fine: ${d.max_ticket}`);
+    }
+  })
+});
+
+return mymap;
+
+```
 ---
+
+#### Approach 2: Dynamic loading of data and creating the figure when user clicks on icon (d3.js)
+-----------------------
 
 ### The final map!
 #### Click on an icon on the map to see ticket number over time:
