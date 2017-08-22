@@ -278,6 +278,10 @@ mymap.on('popupopen', function (e) {
 });
 mymap.on('popupclose',      function (e) { console.log('popupclose'); });
 
+function loadCsvParkingData(row){
+  
+}
+
 d3.csv(parkingCSV, function(d) {
   const countsByMonthColNames = d3.keys(d).filter(function(key) {
                         return ((key.indexOf("count") != -1) && (key.indexOf("count") != 0));
